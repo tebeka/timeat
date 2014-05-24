@@ -2,3 +2,4 @@ syntax: glob
 
 README.html
 timeat
+timeat-*.bz2

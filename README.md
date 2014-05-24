@@ -15,3 +15,10 @@ Uses [Google Maps API][maps], so you'll need network access.
     Paris, IL 61944, USA: Sat May 24, 2014 00:37
     Paris, KY 40361, USA: Sat May 24, 2014 01:37
     $
+
+# Installing
+
+You can either `go get bitbucket.org/tebeka/timeit` or download the files from
+[bitbucket][bb].
+
+[bb]: https://bitbucket.org/tebeka/timeat/downloads
