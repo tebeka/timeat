@@ -30,7 +30,7 @@ const (
 	geoUrl  = apiBase + "/geocode/json"
 	tzUrl   = apiBase + "/timezone/json"
 
-	Version = "0.1.0"
+	Version = "0.1.1"
 )
 
 type Loc struct {
@@ -127,9 +127,8 @@ func main() {
 		if tz.Status != "OK" {
 			die("error: bad status - %s", grep.Status)
 		}
-		dst := time.Duration(tz.DST)
-		offset := time.Duration(tz.Offset)
-		local := now.Add((dst + offset) * time.Second)
+		dst, offset := time.Duration(tz.DST), time.Duration(tz.Offset)
+		local := now.UTC().Add((dst + offset) * time.Second)
 		fmt.Printf("%s: %s\n", loc.Address, local.Format("Mon Jan 2, 2006 15:04"))
 	}
 }
