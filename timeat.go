@@ -114,7 +114,7 @@ func main() {
 		die("error: no locations found matching %s", address)
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	for _, loc := range grep.Locations {
 		vals = url.Values{}
 		vals.Add("timestamp", fmt.Sprintf("%d", now.Unix()))
@@ -128,7 +128,7 @@ func main() {
 			die("error: bad status - %s", grep.Status)
 		}
 		dst, offset := time.Duration(tz.DST), time.Duration(tz.Offset)
-		local := now.UTC().Add((dst + offset) * time.Second)
+		local := now.Add((dst + offset) * time.Second)
 		fmt.Printf("%s: %s\n", loc.Address, local.Format("Mon Jan 2, 2006 15:04"))
 	}
 }
