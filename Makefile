@@ -1,32 +1,23 @@
 exe = timeat
-src = $(exe).go
-arch386 = $(exe)-386.xz
-arch64 = $(exe)-amd64.xz
 
-exe: $(exe)
-
-$(exe): $(src)
+build:
 	go build
 
-test: $(exe)
+test:
 	go test -v
 
-$(arch386): $(src)
+archives:
 	GOARCH=386 go build
-	xz -c $(exe) > $@
-
-$(arch64): $(src)
+	xz -c $(exe) > $(exe)-386.xz
 	go build
-	xz -c $(exe) > $@
+	xz -c $(exe) > $(exe)-amd64.xz
 
-archives: $(arch386) $(arch64)
-
+clean:
+	rm -f *.xz
+	rm -f $(exe)
 
 github:
 	hg bookmark -r default master
 	hg push git+ssh://git@github.com/tebeka/timeat.git
 
-clean:
-	rm *.xz
-
-.PHONY: exe test clean
+.PHONY: build test archives clean github
