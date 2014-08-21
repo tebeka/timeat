@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"time"
 )
 
@@ -30,7 +31,7 @@ const (
 	geoUrl  = apiBase + "/geocode/json"
 	tzUrl   = apiBase + "/timezone/json"
 
-	Version = "0.1.1"
+	Version = "1.0.0"
 )
 
 type Loc struct {
@@ -84,7 +85,7 @@ func apiCall(url string, vals url.Values, reply interface{}) error {
 func main() {
 	version := flag.Bool("version", false, "show version")
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "usage: %s ADDRESS\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "usage: %s ADDRESS\n", path.Base(os.Args[0]))
 		flag.PrintDefaults()
 	}
 	flag.Parse()

@@ -1,2 +1,6 @@
+2014-08-21 version 1.0.0
+    * Bump to 1.0.0
+    * Small usage fix
+
 2014-07-30 version 0.1.1
     * Fix logic error not using UTC
