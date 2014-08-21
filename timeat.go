@@ -16,9 +16,11 @@ Example Usage
 package main
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -31,7 +33,7 @@ const (
 	geoUrl  = apiBase + "/geocode/json"
 	tzUrl   = apiBase + "/timezone/json"
 
-	Version = "1.0.0"
+	Version = "1.1.0"
 )
 
 type Loc struct {
@@ -82,6 +84,60 @@ func apiCall(url string, vals url.Values, reply interface{}) error {
 	return nil
 }
 
+type ntpTime struct {
+	Seconds  uint32
+	Fraction uint32
+}
+
+func (t ntpTime) UTC() time.Time {
+	nsec := uint64(t.Seconds)*1e9 + (uint64(t.Fraction) * 1e9 >> 32)
+	return time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC).Add(time.Duration(nsec))
+}
+
+// currentTime tries to get current time (UTC) from NTP, falls back to local
+// clock
+// NTP code adapted from https://github.com/beevik/ntp/blob/master/ntp.go
+func currentTime() time.Time {
+	raddr, err := net.ResolveUDPAddr("udp", "pool.ntp.org:123")
+	if err != nil {
+		return time.Now().UTC()
+	}
+
+	con, err := net.DialUDP("udp", nil, raddr)
+	if err != nil {
+		return time.Now().UTC()
+	}
+	defer con.Close()
+	con.SetDeadline(time.Now().Add(2 * time.Second))
+
+	var msg struct {
+		LiVnMode       byte // Leap Indicator (2) + Version (3) + Mode (3)
+		Stratum        byte
+		Poll           byte
+		Precision      byte
+		RootDelay      uint32
+		RootDispersion uint32
+		ReferenceId    uint32
+		ReferenceTime  ntpTime
+		OriginTime     ntpTime
+		ReceiveTime    ntpTime
+		TransmitTime   ntpTime
+	}
+	msg.LiVnMode = 0x1B
+
+	err = binary.Write(con, binary.BigEndian, &msg)
+	if err != nil {
+		return time.Now().UTC()
+	}
+
+	err = binary.Read(con, binary.BigEndian, &msg)
+	if err != nil {
+		return time.Now().UTC()
+	}
+
+	return msg.ReceiveTime.UTC()
+}
+
 func main() {
 	version := flag.Bool("version", false, "show version")
 	flag.Usage = func() {
@@ -115,7 +171,7 @@ func main() {
 		die("error: no locations found matching %s", address)
 	}
 
-	now := time.Now().UTC()
+	now := currentTime()
 	for _, loc := range grep.Locations {
 		vals = url.Values{}
 		vals.Add("timestamp", fmt.Sprintf("%d", now.Unix()))

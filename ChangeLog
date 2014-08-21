@@ -1,3 +1,6 @@
+2014-08-21 version 1.1.0
+    * Get time from pool.ntp.org
+
 2014-08-21 version 1.0.0
     * Bump to 1.0.0
     * Small usage fix
