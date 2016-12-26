@@ -21,4 +21,4 @@ Uses [Google Maps API][maps], so you'll need network access.
 You can either `go get github.com/tebeka/timeat` or download the files from
 [github][gh].
 
-[gh]: https://github.com/tebeka/timeat/downloads
+[gh]: https://github.com/tebeka/timeat/releases
