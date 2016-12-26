@@ -1,9 +1,17 @@
+2016-12-26 version 2.0.0
+* timeat/lib
+* Moving to github
+
+2015-09-16 version 1.1.1
+* Added simple test
+* Move ntp code to ntp.go
+
 2014-08-21 version 1.1.0
-    * Get time from pool.ntp.org
+* Get time from pool.ntp.org
 
 2014-08-21 version 1.0.0
-    * Bump to 1.0.0
-    * Small usage fix
+* Bump to 1.0.0
+* Small usage fix
 
 2014-07-30 version 0.1.1
-    * Fix logic error not using UTC
+* Fix logic error not using UTC

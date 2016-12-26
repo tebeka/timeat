@@ -18,7 +18,7 @@ Uses [Google Maps API][maps], so you'll need network access.
 
 # Installing
 
-You can either `go get bitbucket.org/tebeka/timeit` or download the files from
-[bitbucket][bb].
+You can either `go get github.com/tebeka/timeat` or download the files from
+[github][gh].
 
-[bb]: https://bitbucket.org/tebeka/timeat/downloads
+[gh]: https://github.com/tebeka/timeat/downloads
