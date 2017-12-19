@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+func init() {
+	SetAPIKey("")
+}
+
 func TestTimeAt(t *testing.T) {
 	addr := "sunnyvale"
 	tis, err := TimeAt(addr)

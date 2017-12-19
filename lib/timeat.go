@@ -5,8 +5,13 @@ package timeat
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"os/user"
+	"path"
+	"strings"
 	"time"
 )
 
@@ -16,8 +21,10 @@ const (
 	tzURL   = apiBase + "/timezone/json"
 
 	// Version is the package version
-	Version = "2.0.1"
+	Version = "2.1.0"
 )
+
+var apiKey = ""
 
 type apiLoc struct {
 	Address  string `json:"formatted_address"`
@@ -46,8 +53,44 @@ type TimeInfo struct {
 	Time    time.Time // Local time
 }
 
+func findAPIKey() string {
+	key := os.Getenv("TIMEIT_API_KEY")
+	if key != "" {
+		return key
+	}
+
+	user, err := user.Current()
+	if err != nil {
+		return ""
+	}
+
+	keyFile := path.Join(user.HomeDir, ".config", "timeat", "api-key.txt")
+	data, err := ioutil.ReadFile(keyFile)
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(data))
+}
+
+// SetAPIKey sets the API key
+// If key is "" will try to read from TIMEIT_API_KEY environment variable or
+// from ~/.config/timeat/api-key.txt
+func SetAPIKey(key string) {
+	if key == "" {
+		key = findAPIKey()
+	}
+
+	if key != "" {
+		apiKey = key
+	}
+}
+
 // apiCall calls Google Geo API and populates reply
 func apiCall(url string, vals url.Values, reply interface{}) error {
+	if apiKey != "" && vals.Get("key") == "" {
+		vals.Add("key", apiKey)
+	}
 	url = fmt.Sprintf("%s?%s", url, vals.Encode())
 	resp, err := http.Get(url)
 	if err != nil {
@@ -80,7 +123,7 @@ func TimeAt(address string) ([]TimeInfo, error) {
 	}
 
 	if grep.Status != "OK" {
-		return nil, fmt.Errorf("bad status - %s", grep.Status)
+		return nil, fmt.Errorf("bad geo status - %s", grep.Status)
 	}
 
 	now, err := NTPTime()
@@ -98,7 +141,7 @@ func TimeAt(address string) ([]TimeInfo, error) {
 			return nil, fmt.Errorf("can't get geo for %s - %s", address, err)
 		}
 		if tz.Status != "OK" {
-			return nil, fmt.Errorf("bad status - %s", grep.Status)
+			return nil, fmt.Errorf("bad tz status - %s", tz.Status)
 		}
 		dst, offset := time.Duration(tz.DST), time.Duration(tz.Offset)
 		local := now.Add((dst + offset) * time.Second)

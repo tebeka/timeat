@@ -30,13 +30,17 @@ func die(format string, args ...interface{}) {
 }
 
 func main() {
-	version := flag.Bool("version", false, "show version")
+	var showVersion bool
+	var apiKey string
+	flag.BoolVar(&showVersion, "version", false, "show version")
+	flag.StringVar(&apiKey, "api-key", "", "Google API key (also TIMEIT_API_KEY)")
+
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "usage: %s ADDRESS\n", path.Base(os.Args[0]))
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	if *version {
+	if showVersion {
 		fmt.Println(timeat.Version)
 		os.Exit(0)
 	}
@@ -44,6 +48,8 @@ func main() {
 	if flag.NArg() != 1 {
 		die("wrong number of arguments")
 	}
+
+	timeat.SetAPIKey(apiKey)
 
 	address := flag.Arg(0)
 	timesat, err := timeat.TimeAt(address)
